@@ -3,29 +3,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/model/Movie.dart';
-import 'package:movie_app_flutter/repository/Repository.dart';
+import 'package:movie_app_flutter/repository/DbRepository.dart';
 
 class FormWidget extends StatefulWidget {
   final Movie movie;
-  final Repository moviesRepository;
-  FormWidget(this.movie, this.moviesRepository);
+  FormWidget(this.movie);
 
   @override
   FormWidgetState createState() {
-    return FormWidgetState(this.movie, this.moviesRepository);
+    return FormWidgetState(this.movie);
   }
 }
 
 class FormWidgetState extends State<FormWidget> {
-  Repository moviesRepository;
   final Movie movie;
+  final DbRepository moviesRepository = DbRepository();
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController nameController = new TextEditingController();
   TextEditingController genreController = new TextEditingController();
   TextEditingController typeController = new TextEditingController();
   double priority = 0;
 
-  FormWidgetState(this.movie, this.moviesRepository);
+  FormWidgetState(this.movie);
 
   String validator(value) {
     if (value.isEmpty) {
@@ -34,29 +34,35 @@ class FormWidgetState extends State<FormWidget> {
     return null;
   }
 
-  void addMovie() {
+  void addMovie() async {
     var name = nameController.text;
     var genre = genreController.text;
     var type = typeController.text;
     double priority = this.priority;
-    var max = 0;
-    for (var m in moviesRepository.getMovies()) {
-      if (int.parse(m.id) > max) {
-        max = int.parse(m.id);
-      }
-    }
-    int id = 1 + max;
-    var newMovie = new Movie(id.toString(), name, genre, type, priority);
-    moviesRepository.addMovie(newMovie);
+
+    var newMovie = Movie.fromMap({
+      'id': null,
+      'name': name,
+      'genre': genre,
+      'type': type,
+      'priority': priority
+    });
+    await moviesRepository.addMovie(newMovie);
     Navigator.pop(context);
   }
 
-  updateMovie() {
+  updateMovie() async {
     var name = nameController.text;
     var genre = genreController.text;
     var type = typeController.text;
-    var newMovie = new Movie(movie.id, name, genre, type, this.priority);
-    moviesRepository.updateMovie(movie.id, newMovie);
+    var newMovie = Movie.fromMap({
+      'id': movie.id,
+      'name': name,
+      'genre': genre,
+      'type': type,
+      'priority': this.priority
+    });
+    await moviesRepository.updateMovie(movie.id, newMovie);
     Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
   }
 

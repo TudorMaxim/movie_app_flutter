@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/details_component/MovieDetailsWidget.dart';
 import 'package:movie_app_flutter/model/Movie.dart';
-import 'package:movie_app_flutter/repository/Repository.dart';
 
 class MovieWidget extends StatelessWidget {
   final Movie movie;
-  final Repository moviesRepository;
-  MovieWidget(this.movie, this.moviesRepository);
+  MovieWidget(this.movie);
 
   void goToDetails(context) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => MovieDetailsWidget(this.movie, moviesRepository)
+        builder: (context) => MovieDetailsWidget(this.movie)
     ));
   }
 

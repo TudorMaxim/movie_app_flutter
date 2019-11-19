@@ -4,17 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/form_components/UpdateFormWidget.dart';
 import 'package:movie_app_flutter/model/Movie.dart';
-import 'package:movie_app_flutter/repository/Repository.dart';
 
 class MovieDetailsWidget extends StatelessWidget {
-  final Repository moviesRepository;
   final Movie movie;
 
-  MovieDetailsWidget(this.movie, this.moviesRepository);
+  MovieDetailsWidget(this.movie);
 
   void goToUpdateForm(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => UpdateFormWidget(movie, moviesRepository))
+        builder: (context) => UpdateFormWidget(movie))
     );
   }
 
