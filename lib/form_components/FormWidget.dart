@@ -114,7 +114,7 @@ class FormWidgetState extends State<FormWidget> {
                 decoration: InputDecoration(
                     hintText: "Genre"
                 ),
-                validator: (value) => this.validator(value),
+//                validator: (value) => this.validator(value),
               ),
               RatingBar(
                   initialRating: this.priority,

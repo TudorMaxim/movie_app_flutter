@@ -29,9 +29,11 @@ class Repository {
   }
 
   updateMovie(id, newMovie) {
-    Movie oldMovie = movies.where((movie) => movie.id == id).toList()[0];
-    movies.remove(oldMovie);
-    movies.add(newMovie);
+    for (int i = 0; i < movies.length; i++) {
+      if (movies[i].id == id) {
+        movies[i] = newMovie;
+      }
+    }
     movies.sort((a, b) => b.priority.compareTo(a.priority));
   }
 }

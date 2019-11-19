@@ -20,7 +20,7 @@ class MovieWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return  ListTile (
       contentPadding: EdgeInsets.symmetric(horizontal: 6.0),
-      title: Text(movie.name),
+      title: Text(movie.name, style: TextStyle(fontSize: 24)),
       subtitle: RatingBarIndicator(
         rating: movie.priority,
         direction: Axis.horizontal,
