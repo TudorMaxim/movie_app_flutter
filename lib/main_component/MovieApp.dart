@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/details_component/MovieDetailsWidget.dart';
@@ -15,6 +16,26 @@ class MovieAppState extends State<MovieApp> {
   DbRepository moviesRepository = DbRepository();
   List <Movie> movies = [];
   bool firstLoad = true;
+  bool connected = false;
+
+  checkConnection() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      return true;
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      return true;
+    }
+    return false;
+  }
+
+  toggleConnectivity() async {
+    bool connected = await this.checkConnection();
+    if (connected != this.connected) {
+      setState(() {
+        this.connected = connected;
+      });
+    }
+  }
 
   getMovies() async {
     await moviesRepository.init();
@@ -97,7 +118,13 @@ class MovieAppState extends State<MovieApp> {
   Widget build(BuildContext context) {
     if (this.movies.isEmpty && this.firstLoad) {
       print("FETCH MOVIES FROM DB!");
-      getMovies();
+      this.getMovies();
+    }
+    this.toggleConnectivity();
+    if (this.connected) {
+      print("CONNECTED");
+    } else {
+      print("OFFLINE");
     }
     return Scaffold(
         appBar: AppBar(
