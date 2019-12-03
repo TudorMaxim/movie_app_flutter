@@ -47,8 +47,7 @@ class FormWidgetState extends State<FormWidget> {
       'type': type,
       'priority': priority
     });
-    await moviesRepository.addMovie(newMovie);
-    Navigator.pop(context);
+    Navigator.pop(context, newMovie);
   }
 
   updateMovie() async {
@@ -62,8 +61,8 @@ class FormWidgetState extends State<FormWidget> {
       'type': type,
       'priority': this.priority
     });
-    await moviesRepository.updateMovie(movie.id, newMovie);
-    Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+//    await moviesRepository.updateMovie(movie.id, newMovie);
+    Navigator.pop(context, newMovie);
   }
 
   void submit() {

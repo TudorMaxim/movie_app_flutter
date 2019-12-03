@@ -10,10 +10,13 @@ class MovieDetailsWidget extends StatelessWidget {
 
   MovieDetailsWidget(this.movie);
 
-  void goToUpdateForm(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => UpdateFormWidget(movie))
+  void goToUpdateForm(BuildContext context) async {
+    final movie = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => UpdateFormWidget(this.movie))
     );
+    if (movie != null) { // it was an update
+      Navigator.pop(context, movie);
+    }
   }
 
   @override
