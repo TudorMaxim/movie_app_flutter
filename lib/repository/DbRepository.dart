@@ -52,6 +52,21 @@ class DbRepository {
     return movies;
   }
 
+  getMoviesInsertedOffline(int lastOnlineId) async {
+    final Database db = await database;
+    final result = await db.query("movies",
+        where: "id > ?",
+        whereArgs: [lastOnlineId],
+        orderBy: "priority DESC"
+    );
+    int len = result.length;
+    List <Movie> movies = List <Movie>();
+    for (int i = 0; i < len; i++) {
+      movies.add(Movie.fromMap(result[i]));
+    }
+    return movies;
+  }
+
   addMovie(Movie movie) async {
     final Database db = await database;
     await db.insert("movies", movie.toMap());

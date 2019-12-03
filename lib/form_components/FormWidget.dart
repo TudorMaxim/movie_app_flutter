@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/model/Movie.dart';
 import 'package:movie_app_flutter/repository/DbRepository.dart';
+import 'package:movie_app_flutter/shared/sharedMethods.dart';
 
 class FormWidget extends StatefulWidget {
   final Movie movie;
@@ -65,14 +66,19 @@ class FormWidgetState extends State<FormWidget> {
     Navigator.pop(context, newMovie);
   }
 
-  void submit() {
+  void submit() async {
     // Validate returns true if the form is valid, or false
     // otherwise.
     if (_formKey.currentState.validate()) {
       if (movie == null) {
         addMovie();
       } else {
-        updateMovie();
+        bool connected = await checkConnection();
+        if (!connected) {
+          showAlertDialog(context, "You cannot update a movie when you are offline");
+        } else {
+          updateMovie();
+        }
       }
     }
   }
@@ -138,7 +144,7 @@ class FormWidgetState extends State<FormWidget> {
                   child: Align (
                     alignment: Alignment.center,
                     child: RaisedButton(
-                        onPressed: () => submit(),
+                        onPressed: () async => { await submit() },
                         color: Colors.blue,
                         textColor: Colors.white,
                         child: Text('Submit')

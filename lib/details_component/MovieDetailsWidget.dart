@@ -1,9 +1,9 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/form_components/UpdateFormWidget.dart';
 import 'package:movie_app_flutter/model/Movie.dart';
+import 'package:movie_app_flutter/shared/sharedMethods.dart';
 
 class MovieDetailsWidget extends StatelessWidget {
   final Movie movie;
@@ -16,6 +16,15 @@ class MovieDetailsWidget extends StatelessWidget {
     );
     if (movie != null) { // it was an update
       Navigator.pop(context, movie);
+    }
+  }
+
+  void onUpdateButtonClick(BuildContext context) async {
+    bool connected = await checkConnection();
+    if (connected) {
+      goToUpdateForm(context);
+    } else {
+      showAlertDialog(context, "You cannot update this item since you are offline!");
     }
   }
 
@@ -72,7 +81,7 @@ class MovieDetailsWidget extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.edit),
-          onPressed: () => this.goToUpdateForm(context)
+          onPressed: () => this.onUpdateButtonClick(context)
       )
     );
   }
