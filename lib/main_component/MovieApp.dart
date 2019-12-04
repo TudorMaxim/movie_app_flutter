@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/details_component/MovieDetailsWidget.dart';
@@ -21,16 +20,13 @@ class MovieAppState extends State<MovieApp> {
   List <Movie> movies = [];
   bool firstLoad = true;
   bool connected = false;
-  int onlineMaxId = 0;
 
   getMoviesOnline() async {
     List <Movie> movies = await movieService.getAll();
     movies.sort((x, y) => (y.priority - x.priority).toInt());
     setState(() {
       this.movies = movies;
-      this.firstLoad = false;
       this.connected = true;
-      this.onlineMaxId = movies.last.id;
     });
   }
 
@@ -39,7 +35,6 @@ class MovieAppState extends State<MovieApp> {
     movies.sort((x, y) => (y.priority - x.priority).toInt());
     setState(() {
       this.movies = movies;
-      this.firstLoad = false;
       this.connected = false;
     });
   }
@@ -55,11 +50,13 @@ class MovieAppState extends State<MovieApp> {
   }
 
   addMovieLocalDb(Movie movie) async {
-    await moviesRepository.addMovie(movie);
+    int newId = await moviesRepository.addMovie(movie);
     List <Movie> movies = [];
     movies.addAll(this.movies);
+    movie.setId(newId);
     movies.add(movie);
     movies.sort((x, y) => (y.priority - x.priority).toInt());
+    print("Added new movie with id: " + movie.id.toString());
     return movies;
   }
 
@@ -93,22 +90,6 @@ class MovieAppState extends State<MovieApp> {
     }
   }
 
-  deleteDb(Movie movie) async {
-    await moviesRepository.deleteMovie(movie.id);
-    List <Movie> movies = [];
-    movies.addAll(this.movies);
-    int index = -1;
-    for (int i = 0; i < this.movies.length && index < 0; i++) {
-      if (this.movies[i].id == movie.id) {
-        index = i;
-      }
-    }
-    movies.removeAt(index);
-    setState(() {
-      this.movies = movies;
-    });
-  }
-
   deleteMovie(Movie movie) async {
     List <Movie> movies = [];
     movies.addAll(this.movies);
@@ -119,8 +100,8 @@ class MovieAppState extends State<MovieApp> {
       }
     }
     movies.removeAt(index);
-    bool code = await movieService.deleteMovie(movie.id);
-    print("DELETE CODE: " + code.toString());
+    await movieService.deleteMovie(movie.id);
+    print("Delete movie with id: " + movie.id.toString());
     await moviesRepository.deleteMovie(movie.id);
     setState(() {
       this.movies = movies;
@@ -128,8 +109,6 @@ class MovieAppState extends State<MovieApp> {
   }
 
   updateMovie(Movie movie) async {
-    await moviesRepository.updateMovie(movie.id, movie);
-    await movieService.updateMovie(movie);
     List <Movie> movies = [];
     movies.addAll(this.movies);
     int index = -1;
@@ -138,18 +117,17 @@ class MovieAppState extends State<MovieApp> {
         index = i;
       }
     }
+    movie.setId(movies[index].id);
     movies[index] = movie;
     movies.sort((x, y) => (y.priority - x.priority).toInt());
+
+    print("Update movie with id: " + movie.id.toString());
+    await moviesRepository.updateMovie(movie.id, movie);
+    await movieService.updateMovie(movie);
+
     setState(() {
       this.movies = movies;
     });
-  }
-
-  synchronize() async {
-    List <Movie> moviesAddedOffline = await moviesRepository.getMoviesInsertedOffline(this.onlineMaxId);
-    if (moviesAddedOffline.length > 0) {
-      await movieService.createMoviesBatch(moviesAddedOffline);
-    }
   }
 
   goToAddForm(context) async {
@@ -164,6 +142,7 @@ class MovieAppState extends State<MovieApp> {
   }
 
   goToDetails(context, Movie movie) async {
+    print("Details about movie with id: " + movie.id.toString());
     final updatedMovie = await Navigator.of(context).push(
         MaterialPageRoute(
             builder: (context) => MovieDetailsWidget(movie)
@@ -174,12 +153,19 @@ class MovieAppState extends State<MovieApp> {
     }
   }
 
+  sync() async {
+    await this.movieService.sync(this.movies);
+  }
+
   refreshConnectionState() {
     Timer.periodic(
         new Duration(seconds: 5),
         (timer) async {
           bool connected = await checkConnection();
           if (connected != this.connected) {
+            if (connected == true) {
+              await sync();
+            }
             setState(() {
               this.connected = connected;
             });
@@ -189,30 +175,42 @@ class MovieAppState extends State<MovieApp> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     refreshConnectionState();
-    String subTitle  = "";
-    if (!this.connected) {
-      subTitle = "You are offline";
-    }
-
-    print(this.connected);
     if (this.movies.isEmpty && this.firstLoad) {
-      this.getMovies();
+      this.getMovies().then((obj) {
+        print("Fetched movies count: " + this.movies.length.toString());
+        setState(() {
+          this.firstLoad = false;
+        });
+      });
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var appBody = this.firstLoad ? loading() : moviesListView();
+    String subTitle  = this.connected ? "" : "You are offline!";
     return Scaffold(
         appBar: AppBar(
-            title: Text('Your wish list'),
-            centerTitle: true,
-            bottom: PreferredSize(
-                child: Text(subTitle, style: TextStyle(color: Colors.red)),
-                preferredSize: null),
+          title: Text('Your wish list'),
+          centerTitle: true,
+          bottom: PreferredSize(
+            child: Text(subTitle, style: TextStyle(color: Colors.red)),
+            preferredSize: null),
         ),
-        body: moviesListView(),
+        body: appBody,
         floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () => this.goToAddForm(context)
+          child: Icon(Icons.add),
+          onPressed: () => this.goToAddForm(context)
         )
+    );
+  }
+
+  loading() {
+    return Center(
+      child: Text("Loading...", style: TextStyle(fontSize: 24)),
     );
   }
 

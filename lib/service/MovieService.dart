@@ -34,13 +34,17 @@ class MovieService {
      return false;
   }
 
-  createMoviesBatch(List <Movie> movies) async {
-    var moviesJson =  movies.map((Movie movie) => movie.toMap());
-    var response = await http.post('$url/movies/batch',
+  sync(List <Movie> movies) async {
+    List movieJson = [];
+    print(movies.map((movie) => movie.id));
+    movies.forEach((Movie movie) {
+      movieJson.add(movie.toMap());
+    });
+    var response = await http.post('$url/movies/sync',
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json'
         },
-        body: json.encode(Movie.toJsonList(moviesJson))
+        body: json.encode(movieJson)
     );
     if (response != null && response.statusCode == 200) {
       return true;

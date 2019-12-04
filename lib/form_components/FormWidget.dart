@@ -75,7 +75,7 @@ class FormWidgetState extends State<FormWidget> {
       } else {
         bool connected = await checkConnection();
         if (!connected) {
-          showAlertDialog(context, "You cannot update a movie when you are offline");
+          showAlertDialog(context, "You cannot update this movie since you are offline!");
         } else {
           updateMovie();
         }

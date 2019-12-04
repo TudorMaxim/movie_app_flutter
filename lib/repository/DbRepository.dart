@@ -6,7 +6,8 @@ import 'package:sqflite/sqflite.dart';
 class DbRepository {
   static DbRepository _dbRepository;
   static Database _database;
-  String movieTable = "movies";
+  final String movieTable = "MovieTable1";
+  final String moviesDB = "MovieDB1";
 
   DbRepository._createInstance();
 
@@ -25,7 +26,7 @@ class DbRepository {
   }
 
   Future<Database> init() async {
-    String dbPath = join(await getDatabasesPath(), 'movies_flutter.db');
+    String dbPath = join(await getDatabasesPath(), moviesDB);
     var database = await openDatabase(dbPath, version: 1, onCreate: _onCreate);
     return database;
   }
@@ -43,22 +44,7 @@ class DbRepository {
 
   Future<List<Movie>> getMovies() async {
     final Database db = await database;
-    final result = await db.query("movies", orderBy: "priority DESC");
-    int len = result.length;
-    List <Movie> movies = List <Movie>();
-    for (int i = 0; i < len; i++) {
-      movies.add(Movie.fromMap(result[i]));
-    }
-    return movies;
-  }
-
-  getMoviesInsertedOffline(int lastOnlineId) async {
-    final Database db = await database;
-    final result = await db.query("movies",
-        where: "id > ?",
-        whereArgs: [lastOnlineId],
-        orderBy: "priority DESC"
-    );
+    final result = await db.query(movieTable, orderBy: "priority DESC");
     int len = result.length;
     List <Movie> movies = List <Movie>();
     for (int i = 0; i < len; i++) {
@@ -69,13 +55,14 @@ class DbRepository {
 
   addMovie(Movie movie) async {
     final Database db = await database;
-    await db.insert("movies", movie.toMap());
+    int id = await db.insert(movieTable, movie.toMap());
+    return id;
   }
 
   updateMovie(int id, Movie newMovie) async {
     final Database db = await database;
     await db.update(
-        "movies",
+        movieTable,
         newMovie.toMap(),
         where: "id = ?",
       whereArgs: [id]
@@ -85,7 +72,7 @@ class DbRepository {
   deleteMovie(int id) async {
     final Database db = await database;
     await db.delete(
-        "movies",
+        movieTable,
         where: "id = ?",
         whereArgs: [id]
     );

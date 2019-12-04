@@ -1,10 +1,14 @@
 
 class Movie {
-  final int id;
-  final String name, genre, type;
-  final double priority;
+  int id;
+  String name, genre, type;
+  double priority;
 
   Movie({this.id, this.name, this.genre, this.type, this.priority});
+
+  setId(int newId) {
+    this.id = newId;
+  }
 
   equals(Movie other) {
       return this.id == other.id && this.name == other.name &&

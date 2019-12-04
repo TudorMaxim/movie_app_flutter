@@ -24,7 +24,7 @@ class MovieDetailsWidget extends StatelessWidget {
     if (connected) {
       goToUpdateForm(context);
     } else {
-      showAlertDialog(context, "You cannot update this item since you are offline!");
+      showAlertDialog(context, "You cannot update this movie since you are offline!");
     }
   }
 
