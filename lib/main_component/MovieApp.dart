@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app_flutter/details_component/MovieDetailsWidget.dart';
@@ -158,10 +159,9 @@ class MovieAppState extends State<MovieApp> {
   }
 
   refreshConnectionState() {
-    Timer.periodic(
-        new Duration(seconds: 5),
-        (timer) async {
-          bool connected = await checkConnection();
+    Connectivity().onConnectivityChanged.listen((result) async {
+          bool connected = result == ConnectivityResult.mobile || result == ConnectivityResult.wifi;
+          print("Connection: " + connected.toString());
           if (connected != this.connected) {
             if (connected == true) {
               await sync();
@@ -190,7 +190,7 @@ class MovieAppState extends State<MovieApp> {
 
   @override
   Widget build(BuildContext context) {
-    var appBody = this.firstLoad ? loading() : moviesListView();
+    var body = this.firstLoad ? loading() : this.appBody();
     String subTitle  = this.connected ? "" : "You are offline!";
     return Scaffold(
         appBar: AppBar(
@@ -200,7 +200,7 @@ class MovieAppState extends State<MovieApp> {
             child: Text(subTitle, style: TextStyle(color: Colors.red)),
             preferredSize: null),
         ),
-        body: appBody,
+        body: body,
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () => this.goToAddForm(context)
@@ -214,6 +214,31 @@ class MovieAppState extends State<MovieApp> {
     );
   }
 
+  appBody() {
+    return Column (
+      children: [
+        FlatButton(
+          color: Colors.blue,
+          textColor: Colors.white,
+          disabledColor: Colors.grey,
+          disabledTextColor: Colors.black,
+          padding: EdgeInsets.all(8.0),
+          splashColor: Colors.blueAccent,
+          onPressed: () async {
+            this.getMovies();
+          },
+          child: Text(
+            "Refresh",
+            style: TextStyle(fontSize: 20.0),
+          ),
+        ),
+        Expanded(
+          child: this.moviesListView()
+        )
+      ]
+    );
+//    return
+  }
   ListView moviesListView() {
     return new ListView.builder(
         itemBuilder: (context, index) {

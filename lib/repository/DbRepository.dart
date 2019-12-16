@@ -6,8 +6,8 @@ import 'package:sqflite/sqflite.dart';
 class DbRepository {
   static DbRepository _dbRepository;
   static Database _database;
-  final String movieTable = "MovieTable1";
-  final String moviesDB = "MovieDB1";
+  final String movieTable = "movies";
+  final String moviesDB = "MOVIE_APP_FLUTTER.db";
 
   DbRepository._createInstance();
 
