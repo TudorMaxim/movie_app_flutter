@@ -7,7 +7,7 @@ class DbRepository {
   static DbRepository _dbRepository;
   static Database _database;
   final String movieTable = "movies";
-  final String moviesDB = "MOVIE_APP_FLUTTER.db";
+  final String moviesDB = "MOVIE_WISHLIST_NONNATIVE.db";
 
   DbRepository._createInstance();
 
