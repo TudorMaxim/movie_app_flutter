@@ -7,7 +7,7 @@ class DbRepository {
   static DbRepository _dbRepository;
   static Database _database;
   final String movieTable = "movies";
-  final String moviesDB = "MOVIE_WISHLIST_NONNATIVE.db";
+  final String moviesDB = "MOVIE_WISHLIST_FLTR.db";
 
   DbRepository._createInstance();
 
